@@ -1,8 +1,8 @@
 
 $(function () {
-  login_info();
-  check_jwt();
-  getAllDevices();
+  //login_info();
+  //check_jwt();
+  //getAllDevices();
 });
 
 var allDevices = [];
@@ -24,9 +24,9 @@ function getAllDevices() {
 }
 
 function check_jwt() {
-    if(null == sessionStorage.getItem('jwt_token_decoded')) {
-      window.location = "login.html";
-    }
+    //if(null == sessionStorage.getItem('jwt_token_decoded')) {
+    //  window.location = "login.html";
+    //}
 }
 
 function login_info() {
