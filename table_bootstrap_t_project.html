@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>H+ 后台主题UI框架 - Bootstrap Table</title>
+    <meta name="keywords" content="H+后台主题,后台bootstrap框架,会员中心主题,后台HTML,响应式后台">
+    <meta name="description" content="H+是一个完全响应式，基于Bootstrap3最新版本开发的扁平化主题，她采用了主流的左右两栏式布局，使用了Html5+CSS3等现代技术">
+
+    <link rel="shortcut icon" href="favicon.ico"> <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="css/plugins/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.css?v=4.1.0" rel="stylesheet">
+    
+
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+
+        <div class="col-sm-12">
+            <!-- Example Events -->
+            <div class="example-wrap">
+                <h4 class="example-title">事件</h4>
+                <div class="example">
+                    <div class="alert alert-success" id="examplebtTableEventsResult" role="alert">
+                        事件结果
+                    </div>
+                    <div class="btn-group hidden-xs" id="exampleTableEventsToolbar" role="group">
+                        <button type="button" class="btn btn-outline btn-default">
+                            <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline btn-default">
+                            <i class="glyphicon glyphicon-heart" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline btn-default">
+                            <i class="glyphicon glyphicon-trash" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <table id="exampleTableEvents" data-height="400" data-mobile-responsive="true">
+                        <thead>
+                            <tr>
+                                <th data-field="state" data-checkbox="true"></th>
+                                <th data-field="id">ID</th>
+                                <th data-field="name">名称</th>
+                                <th data-field="price">价格</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            <!-- End Example Events -->
+        </div>
+
+        <!-- End Panel Other -->
+    </div>
+
+    <!--QL test-->
+    <div>
+        <table id="table">
+        </table>
+    </div>
+
+    <script type="text/javascript">
+            $(function(){
+    $('#table').bootstrapTable({
+    ajax : function (request) {
+    $.ajax({
+    type : "GET",
+    url : "http://guessulike.config.58corp.com/gulrecomserviceweb/gulrecall/getscene",
+    contentType: "application/json;charset=utf-8",
+    dataType:"jsonp",
+    data:'',
+    jsonp:'callback',
+    success : function (msg) {
+    request.success({
+    row : msg
+    });
+    $('#table').bootstrapTable('load', msg);
+    },
+    error:function(){
+    alert("错误");
+    }
+    });
+    },
+
+    toolbar:'#toolbar',
+    singleSelect:true,
+    clickToSelect:true,
+    sortName: "create_time",
+    sortOrder: "desc",
+    pageSize: 15,
+    pageNumber: 1,
+    pageList: "[10, 25, 50, 100, All]",
+    showToggle: true,
+    showRefresh: true,
+    showColumns: true,
+    search: true,
+    pagination: true,
+    columns: [{
+    field: "state",
+    checkbox:true,
+    },{
+    field: 'scene_name',
+    title: '推荐位名称',
+    switchable: true
+    }, {
+    field: 'scene',
+    title: '场景',
+    switchable: true
+    }, {
+    field: 'creater',
+    title: '创建者',
+    switchable: true
+    }, {
+    field: 'create_time',
+    title: '创建时间',
+    switchable: true,
+    sortable: true
+    }, {
+    field: 'managers',
+    title: '授权账号',
+    switchable: true
+    }],
+
+    });
+    }
+    </script>
+    <!--QL Test end-->
+
+    <!-- 全局js -->
+    <script src="js/jquery.min.js?v=2.1.4"></script>
+    <script src="js/bootstrap.min.js?v=3.3.6"></script>
+
+    <!-- 自定义js -->
+    <script src="js/content.js?v=1.0.0"></script>
+
+
+    <!-- Bootstrap table -->
+    <script src="js/plugins/bootstrap-table/bootstrap-table.min.js"></script>
+    <script src="js/plugins/bootstrap-table/bootstrap-table-mobile.min.js"></script>
+    <script src="js/plugins/bootstrap-table/locale/bootstrap-table-zh-CN.min.js"></script>
+
+    <!-- Peity -->
+    <script src="js/demo/bootstrap-table-demo.js"></script>
+
+    <script type="text/javascript" src="http://tajs.qq.com/stats?sId=9051096" charset="UTF-8"></script>
+    <!--统计代码，可删除-->
+
+</body>
+
+</html>
