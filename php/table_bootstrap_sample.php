@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: pi
- * Date: 10/13/18
- * Time: 4:09 PM
- */
-
 
 /**
  * 服务端模拟数据
