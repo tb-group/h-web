@@ -3,9 +3,11 @@ $(function () {
   //login_info();
   //check_jwt();
   //getAllDevices();
+  getAllProjectInfo();
 });
 
 var allDevices = [];
+var allProjects = [];
 
 function onGetDevicesSuccess(resp) {
    resp.data.forEach(function(x, index, a){
@@ -20,13 +22,26 @@ function onGetDevicesSuccess(resp) {
 
 function getAllDevices() {
    allDevices = [];
-   getDevices(4,onGetDevicesSuccess, function(data){});
+   getDevices(4,onGetDevicesSuccess, function(data){ window.location = "login.html";});
+}
+
+function onGetProjectInfoSuccess(resp) {
+   resp.forEach(function(x, index, a){
+	  allProjects.push(x);
+   });
+   console.log(resp);
+   sessionStorage.setItem('allProjecInfo', JSON.stringify(allProjects));
+}
+
+function getAllProjectInfo() {
+   allProjects = [];
+   getProjects(4,onGetProjectInfoSuccess, function(data){ window.location = "login.html";});
 }
 
 function check_jwt() {
-    //if(null == sessionStorage.getItem('jwt_token_decoded')) {
-    //  window.location = "login.html";
-    //}
+    if(null == sessionStorage.getItem('jwt_token_decoded')) {
+      window.location = "login.html";
+    }
 }
 
 function login_info() {

@@ -30,9 +30,9 @@ function decodeJWT(jwt) {
 
     var header = Base64URLDecode(segments[0]);
     var jwtInfo = Base64URLDecode(segments[1]);
-	
-	console.log(header);
-	console.log(jwtInfo);
+
+    console.log(header);
+    console.log(jwtInfo);
 
     sessionStorage.setItem('jwt_token_decoded', (jwtInfo));
 }
@@ -44,30 +44,31 @@ function login() {
     sessionStorage.removeItem('refresh_token');
     sessionStorage.removeItem('jwt_token_decoded');
     $.ajax({
-	    type: "POST",
-        url: "/api/auth/login" ,
-        dataType: "json",				
-        data: JSON.stringify({username:usr, password:pwd}),
-	    contentType: "application/json",
-        success: function (result) { 
+        type: "POST",
+        url: "/h-web/authenticate" ,
+        dataType: "json",
+        data: JSON.stringify({user_login:usr, user_password:pwd}),
+        contentType: "application/json",
+        success: function (result) {
             if (result.token) {
                 sessionStorage.setItem('jwt_token', result.token);
-                sessionStorage.setItem('refresh_token', result.refreshToken);
+                //sessionStorage.setItem('refresh_token', result.refreshToken);
                 decodeJWT(result.token);
                 alert("SUCCESS");
-			    window.location = "index.html";
+                window.location = "index.html";
+            }else {
+                $.alert({ title: '警告!' , content: '用户名密码错!',});
             }
-            ;
         },
         error : function() {
-            alert("异常！");
+            alert("error");
         }
     });
 }
 
 function login_info() {
-	console.log(sessionStorage.getItem('token'));
-	console.log(sessionStorage.getItem('jwt'));
+    console.log(sessionStorage.getItem('token'));
+    console.log(sessionStorage.getItem('jwt'));
 }
 
 function updateAndValidateToken(token, prefix, notify) {
@@ -92,36 +93,54 @@ function updateAndValidateToken(token, prefix, notify) {
 function getDevices(limit, success_fun, error_fun) {
   var devicesUrl = '/api/tenant/devices?limit='+limit;
   var token = sessionStorage.getItem('jwt_token');
-  $.ajax({
-      type: 'GET',
-      dataType: 'json',
-      url: devicesUrl,
-      headers: {'X-Authorization': 'Bearer '+token},
-      success: function(data) {
-		 success_fun(data);
-      },
-      error:function(data){
+  $.ajax({
+      type: 'GET',
+      dataType: 'json',
+      url: devicesUrl,
+      headers: {'X-Authorization': 'Bearer '+token},
+      success: function(data) {
+         success_fun(data);
+      },
+      error:function(data){
         error_fun(data);
-        alert("error");
-      }
-  });
+          alert("error");
+      }
+   });
 }
 
 function getNextPageDevices (limit, idOffset, textOffset, success_fun, error_fun) {
   var devicesUrl = '/api/tenant/devices?limit='+limit+'&idOffset='+idOffset+'&textOffse='+textOffset;
   var token = sessionStorage.getItem('jwt_token');
   var resp;
-  $.ajax({
-      type: 'GET',
-      dataType: 'json',
-      url: devicesUrl,
-      headers: {'X-Authorization': 'Bearer '+token},
-      success: function(data) {
-		 success_fun(data);
-      },
-      error:function(data){
+  $.ajax({
+         type: 'GET',
+         dataType: 'json',
+         url: devicesUrl,
+         headers: {'X-Authorization': 'Bearer '+token},
+         success: function(data) {
+         success_fun(data);
+         },
+         error:function(data){
         error_fun(data);
-        alert("error");
-      }
-  });
+         alert("error");
+       }
+  });
+}
+
+function getProjects(limit, success_fun, error_fun) {
+  var devicesUrl = '/h-web/getProjectInfo';
+  var token = sessionStorage.getItem('jwt_token');
+  $.ajax({
+    type: 'GET',
+    dataType: 'json',
+    url: devicesUrl,
+    headers: {'X_Authorization': token},
+    success: function(data) {
+         console.log(data);
+         success_fun(data);
+    },
+    error:function(data){
+        error_fun(data);
+      }
+  });
 }
