@@ -128,14 +128,20 @@ function fetch_device_telemetry_timeseries($database, $devname, $param) {
             $end = $param['end'];
             $begin = $end - 60*30;
         }
-        if(isset($parm['begin']) && $param['being'] < $end) {
+        if(isset($param['begin']) && $param['being'] < $end) {
             $begin = $param['begin'];            
         }
+        if(isset($param['before'])) {
+            $end = $param['before'];
+            $begin = $end - 60*30;
+            if(isset($param['length'])) {
+               $begin = $end - $param['length'];
+            }
+        }
     }
-    $begin = $end - 60*30;
 
     $data = $database->select("t_tspvalue", ["devname", "value_real", "datetime"], 
-            ["AND" =>["devname" =>$devname, "datetime[><]" => [date('Y-m-d H:i:s',$begin), date('Y-m-d H:i:s',$end)]]]);
+            ["AND" =>["devname" =>$devname, "datetime[<>]" => [date('Y-m-d H:i:s',$begin), date('Y-m-d H:i:s',$end)]],"ORDER" => ["datetime" => "ASC"]]);
 
     return $data;
 }

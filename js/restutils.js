@@ -149,7 +149,7 @@ function getProjects(limit, success_fun, error_fun) {
 
 function getTelemetrysTimeseries(devices, param,success_fun, error_fun) {
   var devicesUrl = baseUrl + '/telemetry/' + devices;
-  if(variable1 !== '') devicesUrl += '?' + param;
+  if(param !== '') { devicesUrl += '?' + param; }
   var token = sessionStorage.getItem('jwt_token');
   $.ajax({
     type: 'GET',

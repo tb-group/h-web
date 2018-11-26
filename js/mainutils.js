@@ -3,8 +3,21 @@ $(function () {
   //login_info();
   //check_jwt();
   //getAllDevices();
-  getAllProjectInfo();
+  //getAllProjectInfo();
 });
+
+(function($) {
+        var o = $({});//自定义事件对象
+        $.each({
+            trigger: 'publish',
+            on: 'subscribe',
+            off: 'unsubscribe'
+        }, function(key, val) {
+            jQuery[val] = function() {
+               o[key].apply(o, arguments);
+            };
+        });
+})(jQuery);
 
 var allDevices = [];
 var allProjects = [];
@@ -30,6 +43,7 @@ function onGetProjectInfoSuccess(resp) {
 	  allProjects.push(x);
    });
    sessionStorage.setItem('allProjecInfo', JSON.stringify(allProjects));
+   $.publish('app.devicesUpdate', 'ok');
 }
 
 function getAllProjectInfo() {
@@ -50,10 +64,11 @@ function onGetTelemetrysTimeseriesSuccess(resp) {
    });
    console.log(resp);
    sessionStorage.setItem('telemetrysTimeseries', JSON.stringify(deviceTelemetrys));
+   $.publish('app.devicesTelemetrysUpdate', 'ok');
 }
 
-function getDeviceTelemetrys(device) {
-   getTelemetrysTimeseries(device , 'before=1535904000&length=3600', onGetTelemetrysTimeseriesSuccess, function(data){console.log("error");});
+function getDeviceTelemetrys(device, param) {
+   getTelemetrysTimeseries(device , param, onGetTelemetrysTimeseriesSuccess, function(data){console.log("error");});
 }
 
 function login_info() {

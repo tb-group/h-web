@@ -146,25 +146,10 @@
     <script type="text/javascript" src="http://tajs.qq.com/stats?sId=9051096" charset="UTF-8"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=uVUiGv4jxH8CiHW7HeuyUHSDv7bvfyeK"></script>
     <script type="text/javascript" src="js/baidu.js" charset="UTF-8"></script>
+    <script type="text/javascript" src="js/mainutils.js" charset="UTF-8"></script>
+    <script type="text/javascript" src="js/restutils.js" charset="UTF-8"></script>
     <!--统计代码，可删除-->
  <script>
-    function updateDashboard(device_name) {
-        document.getElementById("dashboard").scrollIntoView();
-        var allDevices = (sessionStorage.getItem('allProjecInfo'));
-        sessionStorage.setItem('current_device', device_name);
-    }
-
-    $(document).ready(function(){
-        setInfoWindowOnclick(updateDashboard);
-        updateDeviceData();
-        setTimeout("timeout()",30000);
-    })
-
-    function timeout(){
-        updateDeviceData();
-        setTimeout("timeout()",30000);
-    }
-
     function updateDeviceData() {
         var allDevices = (sessionStorage.getItem('allProjecInfo'));
 	    var jsonDevices = JSON.parse(allDevices);
@@ -280,7 +265,8 @@
             data: [{value: 50, name: '温度', textStyle: { fontSize: 7 }}]
         }]
     };
-    setInterval(function () {
+
+    function updateGauge() {
         var device_name = sessionStorage.getItem('current_device');
         var allDevices = (sessionStorage.getItem('allProjecInfo'));
         var jsonDevices = JSON.parse(allDevices);
@@ -301,26 +287,32 @@
         myChart2.setOption(option2, true);
         myChart3.setOption(option3, true);
         myChart4.setOption(option4, true);
-        },2000);
+    }
 </script>
 
 <script type="text/javascript">
+    function convertDateFromString(dateString) { 
+       if (dateString) { 
+         var arr1 = dateString.split(" "); 
+         var sdate = arr1[0].split('-'); 
+         var date = new Date(sdate[0], sdate[1]-1, sdate[2]); 
+         return date;
+      } 
+    }
+
     var dom = document.getElementById("tspcontainer");
     var tspChart = echarts.init(dom);
     var updateFlag = true;
-    var data = [];  
-    index = 0;
-    for (var i = 0; i < 100; i++) {
-       data.push([index, Math.random() * 21 - 10]);
-       index = index+1;
-    }
 
- 	setInterval(function () {
+    function updateTspTimeseries() {
       if(!updateFlag) return;
-      data.push([index, Math.random() * 21 - 10]);
-      index=index+1;
-
-    tspoption = {
+      var tspData = JSON.parse(sessionStorage.getItem('telemetrysTimeseries'));
+      var data = [];
+      tspData.forEach(function(item){
+	     data.push([item['datetime'], parseFloat(item['value_real'])]);
+      });
+      console.log(data);
+      tspoption = {
         grid: [{
             left: 40,
             right: 120,
@@ -411,7 +403,7 @@
     };
 
       tspChart.setOption(tspoption, true); 
-    }, 1000);
+    }
 
     tspChart.on('datazoom', function (params){
        updateFlag = false;
@@ -427,28 +419,41 @@
 
 </script>
 <script type="text/javascript">
+    function updateDashboard(device_name) {
+        document.getElementById("dashboard").scrollIntoView();
+        sessionStorage.setItem('current_device', device_name);
+    }
+
     $(function () {
+        setInfoWindowOnclick(updateDashboard);
+
         $.subscribe('app.myevent', function(e, results) {
            console.log(JSON.parse(results));
         });
-        
-        setInterval(function () {
-           var array13 = new Array("a","b","c",1,2,3,true,false);
-           $.publish('app.myevent', JSON.stringify(array13));}, 1000);
-    });
 
-    (function($) {
-        var o = $({});//自定义事件对象
-        $.each({
-            trigger: 'publish',
-            on: 'subscribe',
-            off: 'unsubscribe'
-        }, function(key, val) {
-            jQuery[val] = function() {
-               o[key].apply(o, arguments);
-            };
+        $.subscribe('app.devicesUpdate', function(e, results) {
+           updateDeviceData();
+           updateGauge();
         });
-    })(jQuery);
+
+        $.subscribe('app.devicesTelemetrysUpdate', function(e, results) {
+           updateTspTimeseries();
+        });
+
+        getAllProjectInfo();
+
+        var before = 1535904000;
+        setInterval(function () {
+           getAllProjectInfo();
+           var device_name = sessionStorage.getItem('current_device');
+           if(null != device_name) {
+              param = 'before='+before.toString() + '&length=3600';
+              getDeviceTelemetrys(device_name, param);
+              before = before + 5;
+           }
+           var array13 = new Array("a","b","c",1,2,3,true,false);
+           $.publish('app.myevent', JSON.stringify(array13));}, 5000);
+    });
 </script>
 
 </body>
