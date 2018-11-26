@@ -27,7 +27,22 @@ function fetchdata($database){
                                           "address"]);
 }
 
-function fetch_tb_user_device_info($database, $user_id){
+$telemetry_items = array('devname','last_tspvalue','last_pm25value','last_tempvalue','last_humidvalue', 'last_noisevalue','last_windspeed','last_winddirection');
+$attrib_items = array('projectcode','projectname','district','street','longitude','latitude','contractors','prjmanager','telephone', 'address');
+
+function fetch_devices_last_telemetry($database, $devnames) {
+    global $telemetry_items;
+    $data = $database->select("t_cu_upload",$telemetry_items ,["devname"=>$devnames]);
+    return $data;
+}
+
+function fetch_t_projects($database, $prjcodes) {
+    global $attrib_items;
+    $attributes = $database->select("t_project",$attrib_items ,["projectcode"=>$prjcodes]);
+    return $attributes;
+}
+
+function fetch_user_devices($database, $user_id) {
     $foreign_key = $database->select("app_user",["foreign_user_id"],["user_id"=>$user_id]);
     $customer = $database->select("tb_user",["customer_id", "authority", "tenant_id"],["id"=>$foreign_key[0]]);
 
@@ -42,27 +57,45 @@ function fetch_tb_user_device_info($database, $user_id){
     } else if($customer[0]['authority'] == "CUSTOMER_USER") {
        $devices = $database->select("device",["id", "name"],["AND" => ["customer_id"=>$customer[0]['customer_id'], "name[~]"=>"YC"]]);
     }
+    return $devices;
+}
+
+function fetch_tb_user_device_info($database, $user_id){
+    $devices = fetch_user_devices($database, $user_id);
     $entity_ids = array_column($devices,'id');
-    $devnames = $database->select("t_tbgw_inventory",["devname","entity_id"],["entity_id"=>$entity_ids]);
-    $entity_ids = array_column($devnames, 'entity_id');
 
-    foreach($devices as $dev) {
-       $entity_id = $dev['id'];
-       $name = $dev['name'];
-       $found_key = array_search($entity_id, $entity_ids);
-       if(preg_match('#YC(\d+)#i',$name) > 0 && ($found_key) ) {
+    $tbgw_inventories = $database->select("t_tbgw_inventory",["devname","entity_id","projectcode"],["AND"=>["entity_id"=>$entity_ids, "projectcode[!]"=>null]]);
+    $devnames   = array_column($tbgw_inventories, 'devname');
+    $entity_ids = array_column($tbgw_inventories, 'entity_id');
+    $prjcodes   = array_column($tbgw_inventories, 'projectcode');
+
+	$attributes = fetch_t_projects($database, $prjcodes);
+    $attrib_prjs = array_column($attributes, 'projectcode');
+
+    $telemetry = fetch_devices_last_telemetry($database, $devnames);
+    $telemetry_devnames = array_column($telemetry, 'devname');
+
+    global $attrib_items;
+    global $telemetry_items;
+    foreach($tbgw_inventories as $tbgw) {
+       $entity_id  = $tbgw['entity_id'];
+       $prjcode    = $tbgw['projectcode'];
+	   $devname    = $tbgw['devname'];
+       $telemetry_key = array_search($devname, $telemetry_devnames);
+       $attrib_key = array_search($prjcode, $attrib_prjs);
+
+       if(FALSE !== $attrib_key) {
           $result[$entity_id] = array();
-          $result[$entity_id]['name'] = $name;
-          $result[$entity_id]['device_name'] = $devnames[$found_key]['devname'];
-       }
-    }
+          foreach($attrib_items as $item) {
+             $result[$entity_id][$item] = $attributes[$attrib_key][$item];
+          }
 
-    $attributes = $database->select("attribute_kv","*",["entity_id"=>$entity_ids]);
-    foreach($attributes as $item) {
-       $entity_id = $item['entity_id'];
-       $key = $item['attribute_key'];
-       if(isset($result[$entity_id])) {
-          get_device_attribute_value($result,$entity_id, $key, $item);
+          if(FALSE !== $telemetry_key) {
+             foreach($telemetry_items as $item) {
+                $result[$entity_id][$item] = $telemetry[$telemetry_key][$item];
+             }
+          }
+          if(empty($result[$entity_id]['devname'])) { $result[$entity_id]['devname'] = $devname; }
        }
     }
    
@@ -87,8 +120,24 @@ function get_device_attribute_value(&$result,$entity_id, $key, $item) {
     }
 }
 
-function fetch_device_telemetry($database, $param) {
+function fetch_device_telemetry_timeseries($database, $devname, $param) {
+    $end  = time();
+    $begin = $end - 60*30; 
+    if(isset($param)) {
+        if(isset($param['end'])) {
+            $end = $param['end'];
+            $begin = $end - 60*30;
+        }
+        if(isset($parm['begin']) && $param['being'] < $end) {
+            $begin = $param['begin'];            
+        }
+    }
+    $begin = $end - 60*30;
 
+    $data = $database->select("t_tspvalue", ["devname", "value_real", "datetime"], 
+            ["AND" =>["devname" =>$devname, "datetime[><]" => [date('Y-m-d H:i:s',$begin), date('Y-m-d H:i:s',$end)]]]);
+
+    return $data;
 }
 
 function fetch_user($database){
@@ -248,10 +297,25 @@ $app->get('/hello/{name}', function ($request, $response, $args) use ($database)
     return $response->write("Hello, " );
 });
 
+$app->get('/telemetry/{devname}', function ($request, $response, $args) use ($database) {
+    $devname = $args['devname'];
+    $param = $request->getQueryParams();
+    $response = $response->withStatus(200)->withHeader('Content-type', 'application/json');
+    $data = fetch_device_telemetry_timeseries($database, $devname, $param);
+    return $response->write(json_encode($data));
+});
+
 $app->get('/device/{entity_id}', function ($request, $response, $args) use ($database) {
     $param = $request->getQueryParams();
     $response = $response->withStatus(200)->withHeader('Content-type', 'application/json');
-    $data = fetch_device_telemetry($database, $param);
+    $data = 'not support'; //fetch_device_telemetry($database, $param);
+    return $response->write(json_encode($data));
+});
+
+$app->post('/devices/last_telemetry', function ($request, $response, $args) use ($database) {
+    $devices = $request->getParsedBody();
+    $response = $response->withStatus(200)->withHeader('Content-type', 'application/json');
+    $data = fetch_devices_last_telemetry($database, $devices);
     return $response->write(json_encode($data));
 });
 

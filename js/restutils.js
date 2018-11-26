@@ -1,4 +1,6 @@
 
+var baseUrl = '/h-web';
+
 function Base64URLDecode(base64UrlEncodedValue) {
     var result1;
     var result2;
@@ -128,7 +130,7 @@ function getNextPageDevices (limit, idOffset, textOffset, success_fun, error_fun
 }
 
 function getProjects(limit, success_fun, error_fun) {
-  var devicesUrl = '/h-web/getProjectInfo';
+  var devicesUrl = baseUrl + '/getProjectInfo';
   var token = sessionStorage.getItem('jwt_token');
   $.ajax({
     type: 'GET',
@@ -141,6 +143,24 @@ function getProjects(limit, success_fun, error_fun) {
     },
     error:function(data){
         error_fun(data);
+      }
+  });
+}
+
+function getTelemetrysTimeseries(devices, param,success_fun, error_fun) {
+  var devicesUrl = baseUrl + '/telemetry/' + devices;
+  if(variable1 !== '') devicesUrl += '?' + param;
+  var token = sessionStorage.getItem('jwt_token');
+  $.ajax({
+    type: 'GET',
+    dataType: 'json',
+    url: devicesUrl,
+    headers: {'X_Authorization': token},
+    success: function(resp) {
+         success_fun(resp);
+    },
+    error:function(resp){
+        error_fun(resp);
       }
   });
 }

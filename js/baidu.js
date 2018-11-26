@@ -5,6 +5,11 @@ $(function () {
 
 var map;
 var markers = [];
+var infoWindowcbf;
+
+function setInfoWindowOnclick(cbfun) {
+   infoWindowcbf = cbfun;
+}
 
 function openImageWind(url) {
    window.open(url,'','width=450,height=240,top=100, left=300'); 
@@ -26,14 +31,21 @@ function iniMap() {
    map.addControl(new BMap.MapTypeControl());
 }
 
+function godashboard(device_name) {
+   console.log(device_name);
+   infoWindowcbf(device_name);
+}
+
 function setMarkers(points) {
+   removeMarkers();
    markers = [];
    for ( var i = 0; i <points.length; i++){
-      var content = "<div style='font-size: 10px;'> <table>";  
-          //content = content + "<tr><td align="right"><b>噪声:</b> </td><td>${leq} dB</td><td align="right"><b>TSP:</b> </td><td>${tsp} 毫克/立方米</td></tr>";  
-          //content = content + "<tr><td align="right"><b>湿度:</b></td><td> ${humudata} %</td><td align="right"><b>温度:</b></td><td> ${temperature} °C</td></tr>"; 
-          //content = content + "<tr><td align="right"><b>风向:</b></td><td> ${winddirect}</td><td align="right"><b>风速:</b></td><td> ${windspeed} 米/秒</td></tr>"; 
-          content = content + "<tr></tr></table><br/><table><tr><td>总承包商:"+points[i].contractors+"</td><td>地址:"+points[i].address+"</td></tr>";
+      var content = "<div style='font-size: 10px;'> <table>";
+          content = content + "<tr><td><a href='javascript:void(0)' onclick=\"godashboard('"+points[i].devname+"')\">"+ points[i].devname + "</a></td></tr>";
+          content = content + "<tr><td><b>噪声:</b>"+ points[i].last_noisevalue +"dB</td><td><b>TSP:</b>"+points[i].last_tspvalue +"毫克/立方米</td></tr>";  
+          content = content + "<tr><td><b>湿度:</b>"+ points[i].last_humidvalue +"%</td><td><b>温度:</b>"+ points[i].last_tempvalue +"°C</td></tr>"; 
+          content = content + "<tr><td><b>风向:</b>"+ points[i].last_winddirection +"</td><td><b>风速:</b>"+ points[i].last_windspeed +"米/秒</td></tr>"; 
+          content = content + "<tr><td>总承包商:"+points[i].contractors+"</td><td>地址:"+points[i].address+"</td></tr>";
           content = content + "<tr><td>负责人:"+points[i].prjmanager+"</td><td>电话:"+points[i].telephone+"</td></tr>";
           //content = content + "<tr><td><Button onClick=openImageWind('${imageUrl}')> 现场图片</Button></td><td></td></tr>";
           content += "</table></div>";
@@ -50,10 +62,16 @@ function refreshMarkers() {
    }
 }
 
+function removeMarkers() {
+   for ( var i = 0; i <markers.length; i++){
+      map.removeOverlay(markers[i]);
+   }
+}
+
 function createMark(node, info_html){
-        var _marker = new BMap.Marker(new BMap.Point(node.longitude, node.latitude));
-        _marker.addEventListener("click", function(e){
-            this.openInfoWindow(new BMap.InfoWindow(info_html));
-        });
-        return _marker;
+    var _marker = new BMap.Marker(new BMap.Point(node.longitude, node.latitude));
+    _marker.addEventListener("click", function(e){
+         this.openInfoWindow(new BMap.InfoWindow(info_html));
+    });
+    return _marker;
 };

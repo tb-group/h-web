@@ -29,7 +29,6 @@ function onGetProjectInfoSuccess(resp) {
    resp.forEach(function(x, index, a){
 	  allProjects.push(x);
    });
-   console.log(resp);
    sessionStorage.setItem('allProjecInfo', JSON.stringify(allProjects));
 }
 
@@ -44,8 +43,21 @@ function check_jwt() {
     }
 }
 
+function onGetTelemetrysTimeseriesSuccess(resp) {
+   deviceTelemetrys = [];
+   resp.forEach(function(x){
+	  deviceTelemetrys.push(x);
+   });
+   console.log(resp);
+   sessionStorage.setItem('telemetrysTimeseries', JSON.stringify(deviceTelemetrys));
+}
+
+function getDeviceTelemetrys(device) {
+   getTelemetrysTimeseries(device , 'before=1535904000&length=3600', onGetTelemetrysTimeseriesSuccess, function(data){console.log("error");});
+}
+
 function login_info() {
-	console.log(sessionStorage.getItem('jwt_token'));
+    console.log(sessionStorage.getItem('jwt_token'));
     console.log(sessionStorage.getItem('refresh_token'));
-	console.log(sessionStorage.getItem('jwt_token_decoded'));
+    console.log(sessionStorage.getItem('jwt_token_decoded'));
 }

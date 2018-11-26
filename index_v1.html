@@ -46,47 +46,49 @@
 	       </div>
 		</div>
 
-        <div class="row">
+        <div  id="dashboard" class="row">
+            <div class="col-lg-4">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>仪表盘</h5>
+                        <div class="ibox-tools">
+                            <a class="collapse-link">
+                                <i class="fa fa-chevron-up"></i>
+                            </a>
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="graph_flot.html#">
+                                <i class="fa fa-wrench"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-user">
+                                <li><a href="graph_flot.html#">选项1</a>
+                                </li>
+                                <li><a href="graph_flot.html#">选项2</a>
+                                </li>
+                            </ul>
+                            <a class="close-link">
+                                <i class="fa fa-times"></i>
+                            </a>
+                        </div>
+                    </div>
+					<style> 
+					.div-inline{ float:left;}
+					</style>
+                    <div class="ibox-content col-lg-4" style="height:200px" >
+                        <div class="div-inline" style="height:200px; width:25%" id="gauge1"></div>
+						<div class="div-inline" style="height:200px; width:25%" id="gauge2"></div>
+						<div class="div-inline" style="height:200px; width:25%" id="gauge3"></div>
+						<div class="div-inline" style="height:200px; width:25%" id="gauge4"></div>
+                    </div>
+                </div>
+            </div>
 
-            <div class="col-sm-4">
-                <div class="ibox float-e-margins">
-                    <div class="ibox-title">
-                        <span class="label label-primary pull-right">今天</span>
-                        <h5>访客</h5>
-                    </div>
-                    <div class="ibox-content">
-                        <h1 class="no-margins">22 285,400</h1>
-                        <div class="stat-percent font-bold text-navy">20% <i class="fa fa-level-up"></i>
-                        </div>
-                        <small>新订单</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-4">
-                <div class="ibox float-e-margins">
-                    <div class="ibox-title">
-                        <span class="label label-info pull-right">月</span>
-                        <h5>订单</h5>
-                    </div>
-                    <div class="ibox-content">
-                        <h1 class="no-margins">60 420,600</h1>
-                        <div class="stat-percent font-bold text-info">40% <i class="fa fa-level-up"></i>
-                        </div>
-                        <small>新订单</small>
-                    </div>
-                </div>
-            </div>
             <div class="col-lg-4">
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
                         <span class="label label-warning pull-right">年</span>
-                        <h5>收入</h5>
+                        <h5>TSP</h5>
                     </div>
                     <div class="ibox-content">
-                        <h1 class="no-margins">$ 120 430,800</h1>
-                        <div class="stat-percent font-bold text-warning">16% <i class="fa fa-level-up"></i>
-                        </div>
-                        <small>新订单</small>
+                        <div style="height:225px; width:100%" id="tspcontainer"></div>
                     </div>
                 </div>
             </div>
@@ -146,11 +148,28 @@
     <script type="text/javascript" src="js/baidu.js" charset="UTF-8"></script>
     <!--统计代码，可删除-->
  <script>
-        $(document).ready(function () {
-            var allDevices = (sessionStorage.getItem('allProjecInfo'));
-	    var json1 = JSON.parse(allDevices);
-            setMarkers(json1);
-       var $dataTableHot = $("#dataTable").bootstrapTable({
+    function updateDashboard(device_name) {
+        document.getElementById("dashboard").scrollIntoView();
+        var allDevices = (sessionStorage.getItem('allProjecInfo'));
+        sessionStorage.setItem('current_device', device_name);
+    }
+
+    $(document).ready(function(){
+        setInfoWindowOnclick(updateDashboard);
+        updateDeviceData();
+        setTimeout("timeout()",30000);
+    })
+
+    function timeout(){
+        updateDeviceData();
+        setTimeout("timeout()",30000);
+    }
+
+    function updateDeviceData() {
+        var allDevices = (sessionStorage.getItem('allProjecInfo'));
+	    var jsonDevices = JSON.parse(allDevices);
+        setMarkers(jsonDevices);
+        var $dataTableHot = $("#dataTable").bootstrapTable({
             search: false,
             pagination: true,
             pageSize: 15,
@@ -160,7 +179,7 @@
             locale: "zh-CN",
             striped: true,
             toggle:true,
-			data: json1,
+			data: jsonDevices,
             columns:[{
                 field: "address",
                 title:"address"
@@ -172,9 +191,266 @@
                 title:"contractors"
             }]
         });
-		
-		})
+	}   
 </script>
+
+<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
+<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-gl/echarts-gl.min.js"></script>
+<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
+<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
+<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/simplex.js"></script>
+<script type="text/javascript">
+    var myChart1 = echarts.init(document.getElementById("gauge1"));
+        option1 = {
+            tooltip : {
+            formatter: "{a} <br/>{b} : {c}%"
+        },
+        series: [
+        {
+            name: '业务指标',
+            type: 'gauge',
+		    radius: "95%",
+            axisLine: {
+			    lineStyle: {
+			         width:15
+			        }
+			},
+
+            detail: {formatter:'{value}%'},
+            data: [{value: 50, name: 'TSP', textStyle: { fontSize: 7 }}]
+        }]
+    };
+    var myChart2 = echarts.init(document.getElementById("gauge2"));
+        option2 = {
+        tooltip : {
+            formatter: "{a} <br/>{b} : {c}%"
+        },
+        series: [
+        {
+            name: '业务指标',
+            type: 'gauge',
+		    radius: "95%",
+            axisLine: {
+			    lineStyle: {
+			         width:10
+			        }
+			},
+
+            detail: {formatter:'{value}%'},
+            data: [{value: 50, name: '噪声', textStyle: { fontSize: 7 }}]
+        }]
+    };
+    var myChart3 = echarts.init(document.getElementById("gauge3"));
+        option3 = {
+            tooltip : {
+                formatter: "{a} <br/>{b} : {c}毫克"
+        },
+        series: [
+        {
+            name: '业务指标',
+            type: 'gauge',
+		    radius: "95%",
+            axisLine: {
+			    lineStyle: {
+			         width:10
+			        }
+			},
+
+            detail: {formatter:'{value}毫克'},
+            data: [{value: 50, name: 'PM2.5', textStyle: { fontSize: 7 }}]
+        }]
+    };
+    var myChart4 = echarts.init(document.getElementById("gauge4"));
+    option4 = {
+        tooltip : {
+            formatter: "{a} <br/>{b} : {c}°C"
+        },
+        series: [
+        {
+            name: '业务指标',
+            type: 'gauge',
+		    radius: "95%",
+            axisLine: {
+			    lineStyle: {
+			         width:10
+			        }
+			},
+
+            detail: {formatter:'{value}°C'},
+            data: [{value: 50, name: '温度', textStyle: { fontSize: 7 }}]
+        }]
+    };
+    setInterval(function () {
+        var device_name = sessionStorage.getItem('current_device');
+        var allDevices = (sessionStorage.getItem('allProjecInfo'));
+        var jsonDevices = JSON.parse(allDevices);
+        option1.series[0].data[0].value = 0;
+        option2.series[0].data[0].value = 0;
+        option3.series[0].data[0].value = 0;
+        option4.series[0].data[0].value = 0;
+        jsonDevices.forEach(function(device){
+            if(device.devname == device_name) {
+                option1.series[0].data[0].value = device.last_tspvalue;
+                option2.series[0].data[0].value = device.last_noisevalue;
+                option3.series[0].data[0].value = device.last_pm25value;
+			    option4.series[0].data[0].value = device.last_tempvalue;
+            }
+        });
+
+        myChart1.setOption(option1, true);
+        myChart2.setOption(option2, true);
+        myChart3.setOption(option3, true);
+        myChart4.setOption(option4, true);
+        },2000);
+</script>
+
+<script type="text/javascript">
+    var dom = document.getElementById("tspcontainer");
+    var tspChart = echarts.init(dom);
+    var updateFlag = true;
+    var data = [];  
+    index = 0;
+    for (var i = 0; i < 100; i++) {
+       data.push([index, Math.random() * 21 - 10]);
+       index = index+1;
+    }
+
+ 	setInterval(function () {
+      if(!updateFlag) return;
+      data.push([index, Math.random() * 21 - 10]);
+      index=index+1;
+
+    tspoption = {
+        grid: [{
+            left: 40,
+            right: 120,
+            height: '35%'
+        }],
+        tooltip: {
+            trigger: 'axis'
+        },
+        xAxis: {
+            data: data.map(function (item) {
+                return item[0];
+            })
+        },
+        yAxis: {
+            splitLine: {
+                show: false
+            }
+        },
+        toolbox: {
+            left: 'center',
+            feature: {
+                dataZoom: {
+                    yAxisIndex: 'none'
+                },
+                restore: {},
+                saveAsImage: {}
+            }
+        },
+        dataZoom: [{
+            show:true,
+            realtime : true, 
+		},{
+            type: 'inside',
+            realtime : true, 
+        }],
+        visualMap: {
+            top: 10,
+            right: 10,
+            pieces: [{
+                gt: 0,
+                lte: 50,
+                color: '#096'
+            }, {
+                gt: 50,
+                lte: 100,
+                color: '#ffde33'
+            }, {
+                gt: 100,
+                lte: 150,
+                color: '#ff9933'
+            }, {
+                gt: 150,
+                lte: 200,
+                color: '#cc0033'
+            }, {
+                gt: 200,
+                lte: 300,
+                color: '#660099'
+            }, {
+                gt: 300,
+                color: '#7e0023'
+            }],
+            outOfRange: {
+                color: '#999'
+            }
+        },
+        series: {
+            name: 'TSP',
+            type: 'line',
+            data: data.map(function (item) {
+                return item[1];
+            }),
+            markLine: {
+                silent: true,
+                data: [{
+                    yAxis: 50
+                }, {
+                    yAxis: 100
+                }, {
+                    yAxis: 150
+                }, {
+                    yAxis: 200
+                }, {
+                    yAxis: 300
+                }]
+            }
+        }
+    };
+
+      tspChart.setOption(tspoption, true); 
+    }, 1000);
+
+    tspChart.on('datazoom', function (params){
+       updateFlag = false;
+       //console.log(params);
+       var dataZoom = tspChart.getModel().option.dataZoom[0];
+       //console.log(dataZoom);
+    });
+
+    tspChart.on('restore', function (params){
+       console.log(params);
+       updateFlag = true;
+    });
+
+</script>
+<script type="text/javascript">
+    $(function () {
+        $.subscribe('app.myevent', function(e, results) {
+           console.log(JSON.parse(results));
+        });
+        
+        setInterval(function () {
+           var array13 = new Array("a","b","c",1,2,3,true,false);
+           $.publish('app.myevent', JSON.stringify(array13));}, 1000);
+    });
+
+    (function($) {
+        var o = $({});//自定义事件对象
+        $.each({
+            trigger: 'publish',
+            on: 'subscribe',
+            off: 'unsubscribe'
+        }, function(key, val) {
+            jQuery[val] = function() {
+               o[key].apply(o, arguments);
+            };
+        });
+    })(jQuery);
+</script>
+
 </body>
 
 </html>
