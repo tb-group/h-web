@@ -1,0 +1,147 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+ <link rel="icon" href="https://static.jianshukeji.com/highcharts/images/favicon.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1">	<meta name="description" content="">
+	<title>水质参数设置</title>
+	<script src="https://img.hcharts.cn/highcharts/highcharts.js"></script>
+	<script src="https://img.hcharts.cn/highcharts/highcharts-more.js"></script>
+	<script src="https://img.hcharts.cn/highcharts/modules/solid-gauge.js"></script>
+	<script src="https://img.hcharts.cn/highcharts-plugins/highcharts-zh_CN.js"></script>
+
+    <link rel="shortcut icon" href="favicon.ico"> <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="css/font-awesome.css?v=4.4.0" rel="stylesheet">
+
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.css?v=4.1.0" rel="stylesheet">
+
+    <link href="css/plugins/ionRangeSlider/ion.rangeSlider.css" rel="stylesheet">
+    <link href="css/plugins/ionRangeSlider/ion.rangeSlider.skinFlat.css" rel="stylesheet">
+</head>
+<body>
+<script>
+	function showtime(){ 
+	var date = new Date(); //日期对象 
+	var now = ""; 
+	now = date.getFullYear()+"年"; //读英文就行了 
+	now = now + (date.getMonth()+1)+"月"; //取月的时候取的是当前月-1如果想取当前月+1就可以了 
+	now = now + date.getDate()+"日"; 
+	now = now + date.getHours()+"时"; 
+	now = now + date.getMinutes()+"分"; 
+	now = now + date.getSeconds()+"秒"; 
+	document.getElementById("time").innerHTML = now; //div的html是now这个字符串 
+	setTimeout("showtime()",1000); //设置过1000毫秒就是1秒，调用show方法 
+	} 
+</script> 
+		
+<div style="width: 600px; height: 400px; margin: 0 auto">
+
+
+    <h3 align="center">CODcr水质参数设置</h3>
+
+    <div class="col-sm-12">
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="sk-spinner sk-spinner-cube-grid">
+                    <div class="sk-cube"></div>
+                    <div class="sk-cube"></div>
+                    <div class="sk-cube"></div>
+                    <div class="sk-cube"></div>
+                    <div class="sk-cube"></div>
+                    <div class="sk-cube"></div>
+                    <div class="sk-cube"></div>
+                    <div class="sk-cube"></div>
+                    <div class="sk-cube"></div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div id="time" align="center" class="btn btn-primary btn-rounded btn-block">
+                    <script type="text/javascript">showtime();</script>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <a class="btn btn-primary btn-rounded btn-block" href="page_todcr.html#">实时数据显示</a>
+            </div>
+        </div>
+    </div>
+
+
+    <br/>
+    <br/>
+    <br/>
+    <div class="m-b-sm m-t">
+        <small><strong>设备地址：</strong> 设置值为0-255，步长：1  </small>
+    </div>
+    <div id="ionrange_2"></div>
+    <br/>
+    <br/>
+    <br/>
+    <div class="col-sm-12">
+
+        <div class="input-group">
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-primary">设备地址：</button>
+            </span>
+            <input type="text" class="form-control">
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-primary">采集数据</button>
+            </span>
+        </div>
+    </div>
+
+</div>
+
+<!-- 全局js -->
+<script src="js/jquery.min.js?v=2.1.4"></script>
+<script src="js/bootstrap.min.js?v=3.3.6"></script>
+
+<!-- 自定义js -->
+<script src="js/content.js?v=1.0.0"></script>
+
+<!-- Chosen -->
+<script src="js/plugins/chosen/chosen.jquery.js"></script>
+
+<!-- JSKnob -->
+<script src="js/plugins/jsKnob/jquery.knob.js"></script>
+
+<!-- Input Mask-->
+<script src="js/plugins/jasny/jasny-bootstrap.min.js"></script>
+
+<!-- Data picker -->
+<script src="js/plugins/datapicker/bootstrap-datepicker.js"></script>
+
+<!-- Prettyfile -->
+<script src="js/plugins/prettyfile/bootstrap-prettyfile.js"></script>
+
+<!-- NouSlider -->
+<script src="js/plugins/nouslider/jquery.nouislider.min.js"></script>
+
+<!-- Switchery -->
+<script src="js/plugins/switchery/switchery.js"></script>
+
+<!-- IonRangeSlider -->
+<script src="js/plugins/ionRangeSlider/ion.rangeSlider.min.js"></script>
+
+<!-- iCheck -->
+<script src="js/plugins/iCheck/icheck.min.js"></script>
+
+<!-- MENU -->
+<script src="js/plugins/metisMenu/jquery.metisMenu.js"></script>
+
+<!-- Color picker -->
+<script src="js/plugins/colorpicker/bootstrap-colorpicker.min.js"></script>
+
+<!-- Clock picker -->
+<script src="js/plugins/clockpicker/clockpicker.js"></script>
+
+<!-- Image cropper -->
+<script src="js/plugins/cropper/cropper.min.js"></script>
+
+<script src="js/demo/form-advanced-demo.js"></script>
+
+
+
+</body>
+</html>

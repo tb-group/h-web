@@ -212,10 +212,11 @@ $(document).ready(function () {
 
         $("#ionrange_2").ionRangeSlider({
             min: 0,
-            max: 10,
+            max: 255,
+            from: 128,
             type: 'single',
-            step: 0.1,
-            postfix: " 克",
+            step: 1,
+            postfix: " ",
             prettify: false,
             hasGrid: true
         });

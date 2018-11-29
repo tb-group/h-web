@@ -7,6 +7,7 @@ header("Content-Type:application/json;charset=utf-8");
 //为了保持模拟的数据
 session_start();
 
+//调试关闭，正式生产时打开
 /*if ($_SESSION['t_project']) {
     //已生成
 } else {*/
