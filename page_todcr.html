@@ -5,11 +5,13 @@
 	<meta charset="utf-8">
  <link rel="icon" href="https://static.jianshukeji.com/highcharts/images/favicon.ico">
 <meta name="viewport" content="width=device-width, initial-scale=1">	<meta name="description" content="">
-	<title>仪表盘</title>
+	<title>水质实时数据</title>
 	<script src="https://img.hcharts.cn/highcharts/highcharts.js"></script>
 	<script src="https://img.hcharts.cn/highcharts/highcharts-more.js"></script>
 	<script src="https://img.hcharts.cn/highcharts/modules/solid-gauge.js"></script>
 	<script src="https://img.hcharts.cn/highcharts-plugins/highcharts-zh_CN.js"></script>
+
+    <script src="js/jquery.min.js?v=2.1.4"></script>
 
     <link rel="shortcut icon" href="favicon.ico"> <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
     <link href="css/font-awesome.css?v=4.4.0" rel="stylesheet">
@@ -212,7 +214,7 @@
 	    var point,
 	        newVal,
 	        inc;
-	    if (chart1) {
+	    /*if (chart1) {
 	        point = chart1.series[0].points[0];
 	        inc = Math.round((Math.random() - 0.5) * 100);
 	        newVal = point.y + inc;
@@ -220,7 +222,7 @@
 	            newVal = point.y - inc;
 	        }
 	        point.update(newVal);
-	    }
+	    }*/
 	    if (chart2) {
 	        point = chart2.series[0].points[0];
 	        inc = Math.round((Math.random() - 0.5) * 100);
@@ -249,6 +251,105 @@
 	        point.update(newVal);
 	    }
 	}, 2000);
+
+	//start
+    /*setInterval(function () {
+
+
+        //alert("这是document.ready内的Javascript！");
+        var point,
+            newVal,
+            inc;
+        if (chart1) {
+            point = chart1.series[0].points[0];
+
+            point.update(newVal);
+        }
+        if (chart2) {
+            point = chart2.series[0].points[0];
+            inc = Math.round((Math.random() - 0.5) * 100);
+            newVal = point.y + inc;
+            if (newVal < 0 || newVal > 100) {
+                newVal = point.y - inc;
+            }
+            point.update(newVal);
+        }
+        if (chart3) {
+            point = chart3.series[0].points[0];
+            inc = Math.round((Math.random() - 0.5) * 100);
+            newVal = point.y + inc;
+            if (newVal < 0 || newVal > 100) {
+                newVal = point.y - inc;
+            }
+            point.update(newVal);
+        }
+        if (chart4) {
+            point = chart4.series[0].points[0];
+            inc = Math.round((Math.random() - 0.5) * 100);
+            newVal = point.y + inc;
+            if (newVal < 0 || newVal > 100) {
+                newVal = point.y - inc;
+            }
+            point.update(newVal);
+        }
+    }, 2000);*/
+
+    setInterval(function () {
+        //alert("Javascript outside ajax");
+
+
+
+
+        var point,
+            newVal,
+            inc;
+        $.ajax({
+            url: './php-dah/php_t_codcrvalue.php',
+            //dataType:'json',
+            success: function(data) {
+
+               //alert(data[0].codcr);
+
+                if (chart1) {
+                    //alert("js inside chart1");
+                    point = chart1.series[0].points[0];
+                    //alert(point.y);
+                    console.log(point.y);
+
+
+
+                    //alert(newVal);
+
+                    //point.update(newVal);
+
+                    inc = Math.round((Math.random() - 0.5) * 100);
+
+                    console.log(inc);
+
+                    newVal = point.y + inc;
+                    if (newVal < 0 || newVal > 100) {
+                        newVal = point.y - inc;
+                    }
+
+                    newVal = parseInt(data[0].codcr);
+
+                    console.log(newVal);
+                    point.update(newVal);
+                    //chart1.series[0].points[0].update(data[0].codcr);
+                }
+
+
+            },
+            cache: false
+        });
+
+
+        /*alert(newVal);
+        point = chart1.series[0].points[0];
+        point.update(newVal);*/
+
+    }, 2000);
+    //end
 </script>
 </body>
 </html>
