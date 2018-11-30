@@ -13,7 +13,8 @@
 
     <script src="js/jquery.min.js?v=2.1.4"></script>
 
-    <link rel="shortcut icon" href="favicon.ico"> <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
     <link href="css/font-awesome.css?v=4.4.0" rel="stylesheet">
 
     <link href="css/animate.css" rel="stylesheet">
@@ -60,10 +61,10 @@
         </div>
     </div>
 	
-    <div id="container-speed" style="width: 300px; height: 200px; float: left"></div>
-    <div id="container-rpm" style="width: 300px; height: 200px; float: left"></div>
-    <div id="container-speed3" style="width: 300px; height: 200px; float: left"></div>
-    <div id="container-rpm4" style="width: 300px; height: 200px; float: left"></div>
+    <div id="container-speed" style="width: 300px; height: 180px; float: left"></div>
+    <div id="container-rpm" style="width: 300px; height: 180px; float: left"></div>
+    <div id="container-speed3" style="width: 300px; height: 180px; float: left"></div>
+    <div id="container-rpm4" style="width: 300px; height: 180px; float: left"></div>
 </div>
 
 <script>
@@ -75,7 +76,7 @@
 	    title: null,
 	    pane: {
 	        center: ['50%', '85%'],
-	        size: '140%',
+	        size: '120%',
 	        startAngle: -90,
 	        endAngle: 90,
 	        background: {
@@ -132,7 +133,7 @@
 	        data: [40],
 	        dataLabels: {
 	            format: '<div style="text-align:center"><span style="font-size:25px;color:' +
-	            ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y}</span><br/>' +
+	            ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y:.1f}</span><br/>' +
 	            '<span style="font-size:12px;color:silver">unit</span></div>'
 	        },
 	        tooltip: {
@@ -179,7 +180,7 @@
 	        data: [40],
 	        dataLabels: {
 	            format: '<div style="text-align:center"><span style="font-size:25px;color:' +
-	            ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y}</span><br/>' +
+	            ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y:.1f}</span><br/>' +
 	            '<span style="font-size:12px;color:silver">unit</span></div>'
 	        },
 	        tooltip: {
@@ -210,132 +211,40 @@
 	    }]
 	});
 	// 定时刷新数据
-	setInterval(function () {
-	    var point,
-	        newVal,
-	        inc;
-	    /*if (chart1) {
-	        point = chart1.series[0].points[0];
-	        inc = Math.round((Math.random() - 0.5) * 100);
-	        newVal = point.y + inc;
-	        if (newVal < 0 || newVal > 100) {
-	            newVal = point.y - inc;
-	        }
-	        point.update(newVal);
-	    }*/
-	    if (chart2) {
-	        point = chart2.series[0].points[0];
-	        inc = Math.round((Math.random() - 0.5) * 100);
-	        newVal = point.y + inc;
-	        if (newVal < 0 || newVal > 100) {
-	            newVal = point.y - inc;
-	        }
-	        point.update(newVal);
-	    }
-	   	if (chart3) {
-	        point = chart3.series[0].points[0];
-	        inc = Math.round((Math.random() - 0.5) * 100);
-	        newVal = point.y + inc;
-	        if (newVal < 0 || newVal > 100) {
-	            newVal = point.y - inc;
-	        }
-	        point.update(newVal);
-	    }
-	    if (chart4) {
-	        point = chart4.series[0].points[0];
-	        inc = Math.round((Math.random() - 0.5) * 100);
-	        newVal = point.y + inc;
-	        if (newVal < 0 || newVal > 100) {
-	            newVal = point.y - inc;
-	        }
-	        point.update(newVal);
-	    }
-	}, 2000);
-
-	//start
-    /*setInterval(function () {
-
-
-        //alert("这是document.ready内的Javascript！");
-        var point,
-            newVal,
-            inc;
-        if (chart1) {
-            point = chart1.series[0].points[0];
-
-            point.update(newVal);
-        }
-        if (chart2) {
-            point = chart2.series[0].points[0];
-            inc = Math.round((Math.random() - 0.5) * 100);
-            newVal = point.y + inc;
-            if (newVal < 0 || newVal > 100) {
-                newVal = point.y - inc;
-            }
-            point.update(newVal);
-        }
-        if (chart3) {
-            point = chart3.series[0].points[0];
-            inc = Math.round((Math.random() - 0.5) * 100);
-            newVal = point.y + inc;
-            if (newVal < 0 || newVal > 100) {
-                newVal = point.y - inc;
-            }
-            point.update(newVal);
-        }
-        if (chart4) {
-            point = chart4.series[0].points[0];
-            inc = Math.round((Math.random() - 0.5) * 100);
-            newVal = point.y + inc;
-            if (newVal < 0 || newVal > 100) {
-                newVal = point.y - inc;
-            }
-            point.update(newVal);
-        }
-    }, 2000);*/
 
     setInterval(function () {
-        //alert("Javascript outside ajax");
-
-
-
-
         var point,
-            newVal,
-            inc;
+            newVal;
         $.ajax({
             url: './php-dah/php_t_codcrvalue.php',
-            //dataType:'json',
             success: function(data) {
-
-               //alert(data[0].codcr);
-
                 if (chart1) {
-                    //alert("js inside chart1");
                     point = chart1.series[0].points[0];
-                    //alert(point.y);
-                    console.log(point.y);
-
-
-
-                    //alert(newVal);
-
-                    //point.update(newVal);
-
-                    inc = Math.round((Math.random() - 0.5) * 100);
-
-                    console.log(inc);
-
-                    newVal = point.y + inc;
-                    if (newVal < 0 || newVal > 100) {
-                        newVal = point.y - inc;
-                    }
-
-                    newVal = parseInt(data[0].codcr);
-
-                    console.log(newVal);
+                    //取返回data的对应数值，并且把字符串转为数值
+                    newVal = parseFloat(data[0].codcr);
+                    //console.log(newVal);
                     point.update(newVal);
-                    //chart1.series[0].points[0].update(data[0].codcr);
+                }
+                if (chart2) {
+                    point = chart2.series[0].points[0];
+                    //取返回data的对应数值，并且把字符串转为数值
+                    newVal = parseFloat(data[0].tp);
+                    //console.log(newVal);
+                    point.update(newVal);
+                }
+                if (chart3) {
+                    point = chart3.series[0].points[0];
+                    //取返回data的对应数值，并且把字符串转为数值
+                    newVal = parseFloat(data[0].tn);
+                    //console.log(newVal);
+                    point.update(newVal);
+                }
+                if (chart4) {
+                    point = chart4.series[0].points[0];
+                    //取返回data的对应数值，并且把字符串转为数值
+                    newVal = parseFloat(data[0].nh3n);
+                    //console.log(newVal);
+                    point.update(newVal);
                 }
 
 
@@ -343,13 +252,8 @@
             cache: false
         });
 
-
-        /*alert(newVal);
-        point = chart1.series[0].points[0];
-        point.update(newVal);*/
-
     }, 2000);
-    //end
+
 </script>
 </body>
 </html>

@@ -3,8 +3,8 @@
     header("Content-Type:application/json;charset=utf-8");
     //post 请求 请求内容类型为 application/x-www-form-urlencoded 如果是 application/json 则需要另行处理 $_POST 数组不会被填充
 
-    $mysqli=@new mysqli('localhost','root','bxxhbxxh','dahdb');
-    //$mysqli=@new mysqli('localhost','root','pi!123','dahdb');
+    //$mysqli=@new mysqli('localhost','root','bxxhbxxh','dahdb');
+    $mysqli=@new mysqli('localhost','root','pi!123','dahdb');
     if(mysqli_connect_errno()){
         echo "连接数据库失败：".mysqli_connect_error();
         $mysqli=null;
