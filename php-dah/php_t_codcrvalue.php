@@ -1,6 +1,7 @@
 <?php
     //前端期望数据为json
-    header("Content-Type:application/json;charset=utf-8");
+    header("Content-Type:application/json");
+
     //post 请求 请求内容类型为 application/x-www-form-urlencoded 如果是 application/json 则需要另行处理 $_POST 数组不会被填充
 
     //$mysqli=@new mysqli('localhost','root','bxxhbxxh','dahdb');

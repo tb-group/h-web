@@ -3,7 +3,7 @@
 <html>
 <head>
 	<meta charset="utf-8">
- <link rel="icon" href="https://static.jianshukeji.com/highcharts/images/favicon.ico">
+ <!--<link rel="icon" href="https://static.jianshukeji.com/highcharts/images/favicon.ico">-->
 <meta name="viewport" content="width=device-width, initial-scale=1">	<meta name="description" content="">
 	<title>水质实时数据</title>
 	<script src="https://img.hcharts.cn/highcharts/highcharts.js"></script>
@@ -256,6 +256,7 @@
     //json test start
     setInterval(function(){
         //alert("outside getjson");
+
         $.getJSON("./php-dah/php_t_codcrvalue.php",function(data){
             //alert (data.codcr);
             //alert("inside getjson");
