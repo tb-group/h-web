@@ -61,10 +61,10 @@
         </div>
     </div>
 	
-    <div id="container-speed" style="width: 300px; height: 180px; float: left"></div>
-    <div id="container-rpm" style="width: 300px; height: 180px; float: left"></div>
-    <div id="container-speed3" style="width: 300px; height: 180px; float: left"></div>
-    <div id="container-rpm4" style="width: 300px; height: 180px; float: left"></div>
+    <div id="container-speed" style="width: 300px; height: 200px; float: left"></div>
+    <div id="container-rpm" style="width: 300px; height: 200px; float: left"></div>
+    <div id="container-speed3" style="width: 300px; height: 200px; float: left"></div>
+    <div id="container-rpm4" style="width: 300px; height: 200px; float: left"></div>
 </div>
 
 <script>
@@ -76,7 +76,7 @@
 	    title: null,
 	    pane: {
 	        center: ['50%', '85%'],
-	        size: '120%',
+	        size: '150%',
 	        startAngle: -90,
 	        endAngle: 90,
 	        background: {
@@ -210,14 +210,15 @@
 	        }
 	    }]
 	});
-	// 定时刷新数据
 
-    setInterval(function () {
+	// 定时刷新数据
+    /*setInterval(function () {
         var point,
             newVal;
         $.ajax({
             url: './php-dah/php_t_codcrvalue.php',
             success: function(data) {
+
                 if (chart1) {
                     point = chart1.series[0].points[0];
                     //取返回data的对应数值，并且把字符串转为数值
@@ -246,13 +247,50 @@
                     //console.log(newVal);
                     point.update(newVal);
                 }
-
-
             },
             cache: false
         });
 
-    }, 2000);
+    }, 2000);*/
+
+    //json test start
+    setInterval(function(){
+        //alert("outside getjson");
+        $.getJSON("./php-dah/php_t_codcrvalue.php",function(data){
+            //alert (data.codcr);
+            //alert("inside getjson");
+            //console.log(data.codcr);
+            if (chart1) {
+                point = chart1.series[0].points[0];
+                //取返回data的对应数值，并且把字符串转为数值
+                newVal = parseFloat(data.codcr);
+                //console.log(newVal);
+                point.update(newVal);
+            }
+            if (chart2) {
+                point = chart2.series[0].points[0];
+                //取返回data的对应数值，并且把字符串转为数值
+                newVal = parseFloat(data.tp);
+                //console.log(newVal);
+                point.update(newVal);
+            }
+            if (chart3) {
+                point = chart3.series[0].points[0];
+                //取返回data的对应数值，并且把字符串转为数值
+                newVal = parseFloat(data.tn);
+                //console.log(newVal);
+                point.update(newVal);
+            }
+            if (chart4) {
+                point = chart4.series[0].points[0];
+                //取返回data的对应数值，并且把字符串转为数值
+                newVal = parseFloat(data.nh3n);
+                //console.log(newVal);
+                point.update(newVal);
+            }
+        });
+    },2000);
+    //json test end
 
 </script>
 </body>

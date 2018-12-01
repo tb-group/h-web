@@ -18,12 +18,18 @@
     while($row = $result->fetch_assoc()){
         //var_dump($row);
         //echo $row['datetime']." codcr = ".$row['codcr'].PHP_EOL;
-        $target_record[]=$row;
+        $target_record=$row;
     }
 
-    echo json_encode($target_record);
+    //return to ajax
+    //var_dump($target_record);
+    //echo json_encode($target_record);
     //e.g.
     //[{"datetime":"2018-11-29 20:44:21","codcr":"28","tp":"31","tn":"85","nh3n":"98"}]
+
+    //return to getJSON
+    $back =$target_record;
+    echo json_encode($back);
 
     $result->free();
     $mysqli->close();
