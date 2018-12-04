@@ -23,7 +23,7 @@ session_start();
     }
 
     //$query_str_t_tspvalue = "SELECT datetime,value_real FROM t_tspvalue where devname = 'TBGW_SHKJ_YC109' limit 1000";
-    $query_str_t_tspvalue = "SELECT datetime,value_real FROM t_tspvalue where devname = 'TBGW_SHKJ_YC109' order by datetime desc limit 60";
+    $query_str_t_tspvalue = "SELECT datetime,value_real FROM t_tspvalue where devname = 'TBGW_SHKJ_YC109' order by datetime desc limit 1";
     //$query_str_t_tspvalue = "SELECT * from t_sms_record";
     $result_t_tspvalue = pg_query($db,$query_str_t_tspvalue);
     if(!$result_t_tspvalue)

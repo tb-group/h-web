@@ -1,0 +1,169 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="https://img.hcharts.cn/highcharts/highcharts.js"></script>
+	<script src="https://img.hcharts.cn/highcharts/modules/exporting.js"></script>
+	<script src="https://img.hcharts.cn/highcharts-plugins/highcharts-zh_CN.js"></script>
+
+    <script src="js/jquery.min.js?v=2.1.4"></script>
+</head>
+<body>
+	<div id="container" style="min-width:400px;height:400px"></div>
+	<script>
+		Highcharts.setOptions({
+			global: {
+				useUTC: false
+			}
+		});
+		
+		function activeLastPointToolip(chart) {
+			var points = chart.series[0].points;
+			chart.tooltip.refresh(points[points.length -1]);
+		}
+		var chart = Highcharts.chart('container', {
+			chart: {
+				type: 'spline',
+				marginRight: 10,
+				events: {
+					load: function () {
+						var series = this.series[0],
+							chart = this;
+						activeLastPointToolip(chart);
+						setInterval(function () {
+							//real postgresql data start
+                            $.ajax({
+                                //real postgresql data
+                                url: './php/php_t_tspvalue_latest.php',
+                                async: false,
+                                dataType: 'json',
+                                success: function (result) {
+
+                                    x = (new Date(result[0][0])).getTime();
+									y = parseInt(result[0][1]);
+
+                                    series.addPoint([x, y], true, true);
+                                    activeLastPointToolip(chart);
+                                }
+                            });
+                            //real postgresql data end
+						}, 60000);
+					}
+				}
+			},
+			title: {
+				text: 'TSP数据'
+			},
+			xAxis: {
+				type: 'datetime',
+				tickPixelInterval: 150
+			},
+			yAxis: {
+				title: {
+					text: null
+				}
+			},
+			tooltip: {
+				formatter: function () {
+					return '<b>' + this.series.name + '</b><br/>' +
+						Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+						Highcharts.numberFormat(this.y, 2);
+				}
+			},
+			legend: {
+				enabled: false
+			},
+			series: [{
+				name: 'TSP',
+				data: (function () {
+					// 生成随机值
+					/*var data = [],
+						time = (new Date()).getTime(),
+						i;
+					//console.log(time);
+					for (i = -59; i <= 0; i += 1) {
+						data.push({
+							x: time + i * 1000,
+							y: Math.random()
+						});
+					}
+                    console.log(data);
+					return data;*/
+
+					//fetch data from mysql start, getJSON async
+                    /*var mydata = [];
+                    $.getJSON("./php/php_mysql_t_tspvalue.php",function(result){
+                        var data = [],
+                            time = (new Date()).getTime(),
+                            i;
+                        //console.log(result);
+                        //console.log(result[0].datetime);
+                        //console.log(parseDate(result[0].datetime).getTime());
+                        //var oldTime = (new Date("2011/11/11 20:10:10")).getTime();
+                        //time = (new Date(result[0].datetime)).getTime();
+                        //console.log(time);
+                        //for (i = -59; i <= 0; i += 1) {
+						//reverse the data got
+                        for (i = 59; i >= 0; i -= 1) {
+                            data.push({
+
+                                //x: time + i * 1000,
+                                //y: Math.random()
+
+								x: (new Date(result[i].datetime)).getTime(),
+                                y: parseInt(result[i].value_real)
+                            });
+                        }
+                        console.log(data);
+                        //return data;
+                        mydata = data;
+                        console.log(mydata);
+                    });
+                    console.log(mydata);
+                    return mydata;*/
+                    //fetch data from mysql end
+
+					//ajax start sync
+                    var mydata = [];
+                    $.ajax({
+                        //local sample data
+						//url: './php/php_mysql_t_tspvalue.php',
+						//real postgresql data
+                        url: './php/php_t_tspvalue.php',
+                        //data: {age : 20, sex : 'man'},
+                        async: false,
+                        dataType: 'json',
+                        success: function (result) {
+
+                            var data = [],
+                                time = (new Date()).getTime(),
+                                i;
+
+                            for (i = 59; i >= 0; i -= 1) {
+                                data.push({
+
+									//postgresql
+                                    x: (new Date(result[i][0])).getTime(),
+                                    y: parseInt(result[i][1])
+
+									//mysql
+                                    /*x: (new Date(result[i].datetime)).getTime(),
+                                    y: parseInt(result[i].value_real)*/
+                                });
+                            }
+                            //console.log(data);
+                            //return data;
+                            mydata = data;
+                            //console.log(mydata);
+                        }
+                    });
+                    return mydata;
+					//ajax end
+
+				}())
+			}]
+		});
+	</script>
+</body>
+</html>
