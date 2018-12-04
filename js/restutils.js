@@ -164,3 +164,38 @@ function getTelemetrysTimeseries(devices, param,success_fun, error_fun) {
       }
   });
 }
+
+function getTableColumns(table_name, success_fun, error_fun) {
+  var devicesUrl = baseUrl + '/table_columns/'+ table_name;
+  var token = sessionStorage.getItem('jwt_token');
+  $.ajax({
+    type: 'GET',
+    dataType: 'json',
+    url: devicesUrl,
+    headers: {'X_Authorization': token},
+    success: function(data) {
+         console.log(data);
+         success_fun(data);
+    },
+    error:function(data){
+        error_fun(data);
+      }
+  });
+}
+
+function getTableData(table_name, success_fun, error_fun) {
+  var devicesUrl = baseUrl + '/table_data/'+ table_name;
+  var token = sessionStorage.getItem('jwt_token');
+  $.ajax({
+    type: 'GET',
+    dataType: 'json',
+    url: devicesUrl,
+    headers: {'X_Authorization': token},
+    success: function(data) {
+         success_fun(data);
+    },
+    error:function(data){
+        error_fun(data);
+      }
+  });
+}

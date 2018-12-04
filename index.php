@@ -27,6 +27,30 @@ function fetchdata($database){
                                           "address"]);
 }
 
+function get_table_columns($database, $table_name) {
+    $sql = "select column_name from information_schema.columns where table_schema='public' and table_name='";
+    $sql = $sql . $table_name . "'";
+    $data = $database->query($sql)->fetchAll();
+    return array_column($data, 'column_name');
+}
+
+function get_table_data($database, $table_name, $param) {
+    $limit = 100;
+    $offset = 0;
+    if(isset($param)) {
+        if(isset($param['limit'])) {
+            $limit = $param['limit'];
+        }
+        if(isset($param['offset'])) {
+            $offset = $param['offset'];            
+        }
+    }
+
+    $data = $database->select($table_name, "*" ,['LIMIT' => [$offset, $limit],]);
+
+    return $data;
+}
+
 $telemetry_items = array('devname','last_tspvalue','last_pm25value','last_tempvalue','last_humidvalue', 'last_noisevalue','last_windspeed','last_winddirection');
 $attrib_items = array('projectcode','projectname','district','street','longitude','latitude','contractors','prjmanager','telephone', 'address');
 
@@ -301,6 +325,22 @@ $app->get('/hello/{name}', function ($request, $response, $args) use ($database)
     $data = $request->getQueryParams();
     echo json_encode($data);
     return $response->write("Hello, " );
+});
+
+$app->get('/table_columns/{table_name}', function ($request, $response, $args) use ($database) {
+    $table_name = $args['table_name'];
+    $data = get_table_columns($database, $table_name);
+    echo json_encode($data);
+});
+
+$app->get('/table_data/{table_name}', function ($request, $response, $args) use ($database) {
+    $table_name = $args['table_name'];
+    $param = $request->getQueryParams();
+    $response = $response->withStatus(200)->withHeader('Content-type', 'application/json');
+    $data = get_table_data($database, $table_name, $param);
+    $result['total'] = count($data);
+    $result['rows'] = $data;
+    return $response->write(json_encode($result));
 });
 
 $app->get('/telemetry/{devname}', function ($request, $response, $args) use ($database) {

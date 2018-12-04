@@ -36,18 +36,8 @@
 	       </div>
 		</div>
 
-        <div class="row">
-           <div class="col-sm-12">
-		      <div class="ibox float-e-margins">
-			  <div class="ibox-content">
-                 <table id="dataTable"></table>
-              </div>
-			  </div>
-	       </div>
-		</div>
-
         <div  id="dashboard" class="row">
-            <div class="col-lg-4">
+            <div class="col-sm-12 ">
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
                         <h5>仪表盘</h5>
@@ -72,7 +62,7 @@
 					<style> 
 					.div-inline{ float:left;}
 					</style>
-                    <div class="ibox-content col-lg-4" style="height:200px" >
+                    <div class="ibox-content " style="height:200px" >
                         <div class="div-inline" style="height:200px; width:25%" id="gauge1"></div>
 						<div class="div-inline" style="height:200px; width:25%" id="gauge2"></div>
 						<div class="div-inline" style="height:200px; width:25%" id="gauge3"></div>
@@ -80,8 +70,10 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="col-lg-4">
+        <div class="row">
+            <div class="col-sm-12">
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
                         <span class="label label-warning pull-right">年</span>
@@ -92,10 +84,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="row">
-
         </div>
 
     </div>
@@ -154,28 +142,6 @@
         var allDevices = (sessionStorage.getItem('allProjecInfo'));
 	    var jsonDevices = JSON.parse(allDevices);
         setMarkers(jsonDevices);
-        var $dataTableHot = $("#dataTable").bootstrapTable({
-            search: false,
-            pagination: true,
-            pageSize: 15,
-            pageList: [5, 10, 15, 20],
-            showColumns: true,
-            showRefresh: false,
-            locale: "zh-CN",
-            striped: true,
-            toggle:true,
-			data: jsonDevices,
-            columns:[{
-                field: "address",
-                title:"address"
-            },{
-                field: "district",
-                title:"district"
-            }, {
-                field: "contractors",
-                title:"contractors"
-            }]
-        });
 	}   
 </script>
 
@@ -291,12 +257,11 @@
 </script>
 
 <script type="text/javascript">
-    function convertDateFromString(dateString) { 
-       if (dateString) { 
-         var arr1 = dateString.split(" "); 
-         var sdate = arr1[0].split('-'); 
-         var date = new Date(sdate[0], sdate[1]-1, sdate[2]); 
-         return date;
+    function convertDateFromString(dateString) {
+       if (dateString) {
+         var str = dateString.replace(/-/g,"/");
+         var oDate = new Date(str);
+         return oDate;
       } 
     }
 
@@ -309,7 +274,7 @@
       var tspData = JSON.parse(sessionStorage.getItem('telemetrysTimeseries'));
       var data = [];
       tspData.forEach(function(item){
-	     data.push([item['datetime'], parseFloat(item['value_real'])]);
+	     data.push([convertDateFromString(item['datetime']), parseFloat(item['value_real'])]);
       });
       console.log(data);
       tspoption = {
