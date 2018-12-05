@@ -56,7 +56,6 @@ function login() {
                 sessionStorage.setItem('jwt_token', result.token);
                 //sessionStorage.setItem('refresh_token', result.refreshToken);
                 decodeJWT(result.token);
-                alert("SUCCESS");
                 window.location = "index.html";
             }else {
                 $.alert({ title: '警告!' , content: '用户名密码错!',});

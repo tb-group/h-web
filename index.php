@@ -35,7 +35,7 @@ function get_table_columns($database, $table_name) {
 }
 
 function get_table_data($database, $table_name, $param) {
-    $limit = 100;
+    $limit = 20;
     $offset = 0;
     if(isset($param)) {
         if(isset($param['limit'])) {
@@ -66,31 +66,22 @@ function fetch_t_projects($database, $prjcodes) {
     return $attributes;
 }
 
-function fetch_user_devices($database, $user_id) {
-    $foreign_key = $database->select("app_user",["foreign_user_id"],["user_id"=>$user_id]);
-    $customer = $database->select("tb_user",["customer_id", "authority", "tenant_id"],["id"=>$foreign_key[0]]);
-
-    $result = array();
-    if(empty($customer)) {
-        echo $foreign_key;
-        return $result;
-    }
-
-    if ($customer[0]['authority'] == "TENANT_ADMIN") {
-       $devices = $database->select("device",["id", "name"],["AND" => ["tenant_id"=>$customer[0]['tenant_id'], "name[~]"=>"YC"]]);
-    } else if($customer[0]['authority'] == "CUSTOMER_USER") {
-       $devices = $database->select("device",["id", "name"],["AND" => ["customer_id"=>$customer[0]['customer_id'], "name[~]"=>"YC"]]);
-    }
+function fetch_customer_devices($database, $customer_id) {
+    $customer_path = $database->select("app_customer",["path"],["id"=>$customer_id]);
+    $string_path = $customer_path[0]['path'] . '/' . $customer_id;
+    $customer_ids = $database->select("app_customer",["id"],["path[~]" =>$string_path]); 
+    $customer_ids = array_column($customer_ids,'id');
+    array_push($customer_ids,$customer_id);
+    $devices = $database->select("app_device",["name"],["customer_id"=>$customer_ids]);
     return $devices;
 }
 
-function fetch_tb_user_device_info($database, $user_id){
-    $devices = fetch_user_devices($database, $user_id);
-    $entity_ids = array_column($devices,'id');
+function fetch_user_device_info($database, $customer_id){
+    $devices = fetch_customer_devices($database, $customer_id);
+    $devnames = array_column($devices,'name');
 
-    $tbgw_inventories = $database->select("t_tbgw_inventory",["devname","entity_id","projectcode"],["AND"=>["entity_id"=>$entity_ids, "projectcode[!]"=>null]]);
+    $tbgw_inventories = $database->select("t_tbgw_inventory",["devname","projectcode"],["AND"=>["devname"=>$devnames, "projectcode[!]"=>null]]);
     $devnames   = array_column($tbgw_inventories, 'devname');
-    $entity_ids = array_column($tbgw_inventories, 'entity_id');
     $prjcodes   = array_column($tbgw_inventories, 'projectcode');
 
 	$attributes = fetch_t_projects($database, $prjcodes);
@@ -102,24 +93,23 @@ function fetch_tb_user_device_info($database, $user_id){
     global $attrib_items;
     global $telemetry_items;
     foreach($tbgw_inventories as $tbgw) {
-       $entity_id  = $tbgw['entity_id'];
+       $devname    = $tbgw['devname'];
        $prjcode    = $tbgw['projectcode'];
-	   $devname    = $tbgw['devname'];
        $telemetry_key = array_search($devname, $telemetry_devnames);
        $attrib_key = array_search($prjcode, $attrib_prjs);
 
        if(FALSE !== $attrib_key) {
-          $result[$entity_id] = array();
+          $result[$devname] = array();
+          $result[$devname]['devname'] = $devname;
           foreach($attrib_items as $item) {
-             $result[$entity_id][$item] = $attributes[$attrib_key][$item];
+             $result[$devname][$item] = $attributes[$attrib_key][$item];
           }
 
           if(FALSE !== $telemetry_key) {
              foreach($telemetry_items as $item) {
-                $result[$entity_id][$item] = $telemetry[$telemetry_key][$item];
+                $result[$devname][$item] = $telemetry[$telemetry_key][$item];
              }
           }
-          if(empty($result[$entity_id]['devname'])) { $result[$entity_id]['devname'] = $devname; }
        }
     }
    
@@ -175,15 +165,15 @@ function fetch_user($database){
 }
 
 function get_users_by_name($database, $name){
-    return $database->select("app_user", "*", ["user_name"=>$name]);
+    return $database->select("app_user", "*", ["name"=>$name]);
 }
 
-function get_token_by_userid($database, $userid){
-    return $database->select("app_login_token", "*", ["AND" => ["user_id"=>$userid, "date_expiration[>]"=>time()]]);
+function get_token_by_username($database, $user_name){
+    return $database->select("app_login_token", "*", ["AND" => ["user_name"=>$user_name, "date_expiration[>]"=>time()]]);
 }
 
-function set_token_by_userid($database, $userid, $token, $date_created, $date_expiration){
-    return $database->insert("app_login_token", ["user_id"=>$userid, "token"=>$token,
+function set_token_by_username($database, $user_name, $token, $date_created, $date_expiration){
+    return $database->insert("app_login_token", ["user_name"=>$user_name, "token"=>$token,
                                                  "date_created"=>$date_created,
                                                  "date_expiration"=>$date_expiration ]);
 }
@@ -191,13 +181,11 @@ function set_token_by_userid($database, $userid, $token, $date_created, $date_ex
 // Authenticate route.
 $app->post('/authenticate', function (Request $request, Response $response) use ($database) {
     $data = $request->getParsedBody();
-    //$result = '[{"user_login":"tenant", "user_pwd":"tenant"}]'; //file_get_contents('./users.json');
-    //$users = fetch_user($database);//json_decode($result, true);
     $login = $data['user_login'];
-    $password = $data['user_password'];
+    $password = md5($data['user_password']);
     $users = get_users_by_name($database, $login);
     foreach ($users as $key => $user) {
-        if ($user['user_name'] == $login && $user['password'] == $password) {
+        if ($user['name'] == $login && $user['password'] == $password) {
             $current_user = $user;
         }
     }
@@ -208,11 +196,11 @@ $app->post('/authenticate', function (Request $request, Response $response) use 
         // Find a corresponding token.
         //$sql = "SELECT * FROM tokens
         //    WHERE user_id = :user_id AND date_expiration >" . time();
-        $token_from_db = get_token_by_userid($database,$current_user['user_id']);
+        $token_from_db = get_token_by_username($database,$current_user['name']);
         if (count($current_user) != 0 && count($token_from_db) != 0 ) {
            echo json_encode([
                 "token"      => $token_from_db[0]['token'],
-                "user_id" => $current_user['user_id']
+                "id" => $current_user['customer_id']
                 ]);
         }
         // Create a new token if a user is found but not a token corresponding to whom.
@@ -225,7 +213,7 @@ $app->post('/authenticate', function (Request $request, Response $response) use 
                 "context" => [
                     "user" => [
                         "user_login" => $current_user['user_name'],
-                        "user_id"    => $current_user['user_id']
+                        "id"    => $current_user['customer_id']
                     ]
                 ]
             );
@@ -237,12 +225,12 @@ $app->post('/authenticate', function (Request $request, Response $response) use 
             //$sql = "INSERT INTO tokens (user_id, value, date_created, date_expiration)
             //    VALUES (:user_id, :value, :date_created, :date_expiration)";
           
-            $pdo = set_token_by_userid($database, $current_user['user_id'], $jwt,
+            $pdo = set_token_by_username($database, $current_user['name'], $jwt,
                                            $payload['iat'], $payload['exp']);
-            if($pdo->rowCount() == 0) {
+            if($pdo->rowCount() > 0) {
                 echo json_encode([
                     "token"      => $jwt,
-                    "id" => $current_user['user_id']
+                    "id" => $current_user['customer_id']
                 ]);
             } else {
                 echo json_encode($pdo);
@@ -269,7 +257,7 @@ $mw1 = function ($request, $response, $next) {
               $res['result'] = 'token expire';
            } else {
               $_SESSION['user_name'] = $decoded->context->user->user_login;
-              $_SESSION['user_id'] = $decoded->context->user->user_id;
+              $_SESSION['customer_id'] = $decoded->context->user->id;
               $valid = true;
            }
        } catch (UnexpectedValueException $e) {
@@ -317,7 +305,7 @@ $app->get('/restricted', function (Request $request, Response $response) {
 });
 
 $app->get('/aa', function ($request, $response, $args) use ($database) {
-    $devics = fetch_tb_user_device_info($database, $_SESSION['user_id']);
+    $devics = fetch_user_device_info($database, $_SESSION['customer_id']);
     echo json_encode($devics);
 })->add($mw1);
 
@@ -366,8 +354,7 @@ $app->post('/devices/last_telemetry', function ($request, $response, $args) use 
 });
 
 $app->get('/getProjectInfo', function ($request, $response, $args)use ($database) {
-	//$data = fetchdata($database);
-        $data = fetch_tb_user_device_info($database, $_SESSION['user_id']);
+    $data = fetch_user_device_info($database, $_SESSION['customer_id']);
 	echo json_encode($data);
 })->add($mw1);
 
